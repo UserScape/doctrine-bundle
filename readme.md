@@ -20,6 +20,8 @@ Once you have done this test the CLI by running:
 
 ## Configuration
 
+### Caching
+
 By default, the bundle is configured to use the ArrayCache provider, which is suited for development; however, you will want to change this to another provider implementation for production. In addition to the Doctrine providers, I have also included a **FileCache** provider for those who do not have a memory-based cache such as APC available.
 
 The cache provider is resolved out of the Laravel IoC container. If you would like to use something other than the ArrayCache, simply register **doctrine::cache.provider** in the IoC container:
@@ -30,6 +32,8 @@ The cache provider is resolved out of the Laravel IoC container. If you would li
 	{
 		return new Doctrine\Common\Cache\FileCache(path('storage').'cache/doctrine.metadata');
 	});
+
+### Models & Proxies
 
 The bundle also uses sensible defaults for your **models** and **proxies**. The model directory is set to **application/models** and the proxy directory is set to **application/models/proxies**. Of course, you can change both:
 
