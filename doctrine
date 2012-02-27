@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Register the core Laravel paths
+ */
+require 'paths.php';
+
+/**
+ * Bootstrap the Laravel framework
+ */
+require path('sys').'core.php';
+
+/**
+ * Fire up the doctrine bundle
+ */
+Laravel\Bundle::start('doctrine');
+
+use Doctrine\ORM\Tools\Console\ConsoleRunner,
+    Symfony\Component\Console\Helper\HelperSet,
+    Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper,
+    Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
+
+/**
+ * Resolve the entity manager instance out of the IoC container
+ */
+$em = Laravel\IoC::resolve('doctrine::manager');
+
+/**
+ * Create the console helper-set and fire up the Doctrine console
+ */
+$helperSet = new HelperSet(array(
+    'db' => new ConnectionHelper($em->getConnection()),
+    'em' => new EntityManagerHelper($em)
+));
+
+ConsoleRunner::run($helperSet);
