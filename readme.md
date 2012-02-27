@@ -69,3 +69,5 @@ By default, proxy classes are set to auto-generate. It is strongly encouraged yo
 ## License
 
 Doctrine is licensed under the LGPL (GNU Lesser General Public License). For more information, consult the "license.txt" file within the "lib" directory.
+
+For more information about Doctrine, consult the official [Doctrine website](http://www.doctrine-project.org/).
