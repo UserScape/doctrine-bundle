@@ -8,7 +8,7 @@ return array(
 	// Doctrine proxy class configuration
 	'proxy' => array(
 		'auto_generate' => true,
-		'namespace'     => 'Application\\Model\\Proxy',
+		'namespace'     => 'Entity\\Proxy',
 		'directory'     => path('app').'models'.DS.'proxies',
 	),
 
