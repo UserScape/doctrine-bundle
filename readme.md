@@ -65,3 +65,7 @@ By default, proxy classes are set to auto-generate. It is strongly encouraged yo
 **Setting proxy auto-generation to false:**
 
 	Config::set('doctrine::config.proxy.auto_generate', false);
+
+## License
+
+Doctrine is licensed under the LGPL (GNU Lesser General Public License). For more information, consult the "license.txt" file within the "lib" directory.
