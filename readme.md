@@ -20,6 +20,15 @@ Once you have done this test the CLI by running:
 
 ## Configuration
 
+### Where To Config?
+
+Since the Doctrine bundle uses its configuration in it's **start.php** file, you should set any Doctrine configuration items within the "start" event for the bundle. A good place to do this is in your **application/start.php** file. Here's what it should look like:
+
+	Event::listen('laravel.started: doctrine', function()
+	{
+		// Set your Doctrine configuration here!
+	});
+
 ### Caching
 
 By default, the bundle is configured to use the ArrayCache provider, which is suited for development; however, you will want to change this to another provider implementation for production. In addition to the Doctrine providers, I have also included a **FileCache** provider for those who do not have a memory-based cache such as APC available.
