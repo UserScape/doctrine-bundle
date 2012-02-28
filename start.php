@@ -21,9 +21,9 @@ Event::listen('laravel.started: doctrine', function()
 	/**
 	 * Register the Symfony namespace if nothing else has registered it.
 	 */
-	if ( ! isset(Autoloader::$namespaces['Symfony\\']))
+	if ( ! isset(Autoloader::$namespaces['Symfony\\Component\\']))
 	{
-		Autoloader::namespaces(array('Symfony' => Bundle::path('doctrine').'lib/Symfony'));
+		Autoloader::namespaces(array('Symfony\\Component\\' => Bundle::path('doctrine').'lib/Symfony/Component'));
 	}
 
 	/**
