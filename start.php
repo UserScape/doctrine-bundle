@@ -5,6 +5,10 @@ use Doctrine\ORM\EntityManager,
 	Laravel\Config,
 	Laravel\IoC;
 
+require __DIR__.'/lib/Doctrine/ORM/Tools/Setup.php';
+
+Doctrine\ORM\Tools\Setup::registerAutoloadGit(__DIR__);
+
 /**
  * Delegate the starting to an event so we can start *after* the application bundle.
  *
@@ -12,19 +16,6 @@ use Doctrine\ORM\EntityManager,
  */
 Event::listen('laravel.started: doctrine', function()
 {
-
-	/**
-	 * Register the Doctrine namespace with the auto-loader.
-	 */
-	Autoloader::namespaces(array('Doctrine' => Bundle::path('doctrine').'lib'));
-
-	/**
-	 * Register the Symfony namespace if nothing else has registered it.
-	 */
-	if ( ! isset(Autoloader::$namespaces['Symfony\\Component\\']))
-	{
-		Autoloader::namespaces(array('Symfony\\Component\\' => Bundle::path('doctrine').'lib/Symfony/Component'));
-	}
 
 	/**
 	 * Resolve the cache provider implementation from the IoC container.
