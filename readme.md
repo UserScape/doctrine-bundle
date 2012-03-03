@@ -8,7 +8,54 @@
 
 Add the following to your **application/bundles.php** file:
 
-	'doctrine' => array('auto' => true),
+	'doctrine' => array(
+		'auto' => true,
+		'autoloads' => array(
+			'map' => array(
+				'Doctrine\Migration' => '(:bundle)/migration.php',
+			),
+		),
+	),
+
+### Doctrine Migration Wrapper
+
+This bundle includes a custom **Doctrine\Migration** class that integrates with the Laravel migration CLI. If you wish
+to use this class, be sure to run the following command before writing Doctrine migrations:
+
+	php artisan migrate doctrine
+
+This will create a special table on your database used to store Doctrine schema information. Now you can extend this
+class in your migrations like so:
+
+	class Create_Users_Table extends Doctrine\Migration {
+
+		//
+
+	}
+
+When writing Doctrine migrations, you do not need to create an "up" and "down" method. You only need to create a
+"change" method which should be the equivalent of the "up" action. The Doctrine migration will intelligently
+reverse this change command when rolling back migrations!
+
+To create a Doctrine migration, you can use the following task:
+
+	php artisan doctrine::migrate:make migration_name
+
+In your Doctrine migrations, you may work on your database schema using the Doctrine schema building tools.
+For more information, consult the [Docrine schema documentation](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/schema-representation.html).
+
+	class Create_Users_Table extends Doctrine\Migration {
+
+		public function change()
+		{
+			$table = $this->schema->createTable('users');
+
+			$table->addColumn('id', 'integer', array('autoincrement' => true));
+
+			$table->addColumn('name', 'string');
+		}
+
+	}
 
 ### Doctrine CLI
 
