@@ -57,6 +57,8 @@ For more information, consult the [Docrine schema documentation](http://docs.doc
 
 	}
 
+> **Note:** You can run your Doctrine migrations with the usual "php artisan migrate" command.
+
 ### Doctrine CLI
 
 Copy the **doctrine** file from the bundle's directory into your Laravel base directory (the same directory as Artisan).
