@@ -3,7 +3,10 @@
 return array(
 
 	// The path to your application's models
-	'models' => path('app').'models',
+	'models' => array(
+		'namespace'     => 'Entity',
+		'directory'     => path('app').'models',
+	),
 
 	// Doctrine proxy class configuration
 	'proxy' => array(

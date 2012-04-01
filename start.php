@@ -62,6 +62,13 @@ Event::listen('laravel.started: doctrine', function()
 	$config->setAutoGenerateProxyClasses(Config::get('doctrine::config.proxy.auto_generate'));
 
 	/**
+	 * Register an autoloader for the model classes
+	 */
+	$loader = new Doctrine\Common\ClassLoader(Config::get('doctrine::config.models.namespace'), Config::get('doctrine::config.models.directory'));
+
+	$loader->register();
+
+	/**
 	 * Register an EntityManager in the IoC container as an instance.
 	 */
 	$em = EntityManager::create(array('pdo' => Laravel\Database::connection()->pdo), $config);
