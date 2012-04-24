@@ -395,7 +395,7 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
      */
     protected function newClassMetadataInstance($className)
     {
-        return new ClassMetadata($className, $this->em->getConfiguration()->getNamingStrategy());
+        return new ClassMetadata($className);
     }
 
     /**

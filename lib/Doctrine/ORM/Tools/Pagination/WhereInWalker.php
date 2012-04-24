@@ -120,9 +120,7 @@ class WhereInWalker extends TreeWalkerAdapter
                         $conditionalPrimary
                     ))
                 ));
-            } elseif ($AST->whereClause->conditionalExpression instanceof ConditionalExpression
-                || $AST->whereClause->conditionalExpression instanceof ConditionalFactor
-            ) {
+            } elseif ($AST->whereClause->conditionalExpression instanceof ConditionalExpression) {
                 $tmpPrimary = new ConditionalPrimary;
                 $tmpPrimary->conditionalExpression = $AST->whereClause->conditionalExpression;
                 $AST->whereClause->conditionalExpression = new ConditionalTerm(array(

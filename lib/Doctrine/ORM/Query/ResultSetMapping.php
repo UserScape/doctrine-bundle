@@ -308,10 +308,10 @@ class ResultSetMapping
      *
      * @todo Rename: addScalar
      */
-    public function addScalarResult($columnName, $alias, $type = 'string')
+    public function addScalarResult($columnName, $alias, $type = null)
     {
         $this->scalarMappings[$columnName] = $alias;
-        $this->typeMappings[$columnName]   = $type;
+        $this->typeMappings[$columnName]   = $type ?: 'string';
 
         if ( ! $this->isMixed && $this->fieldMappings) {
             $this->isMixed = true;

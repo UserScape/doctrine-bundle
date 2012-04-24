@@ -13,7 +13,7 @@ require_once 'phing/Task.php';
 class VersionIncrementTask extends Task
 {
     /** Pattern to match unstable versions */
-    const UNSTABLE_PATTERN = '((-RC[0-9]+|-DEV|-ALPHA|-BETA))i';
+    const UNSTABLE_PATTERN = '((-RC[0-9]+|-DEV|-ALPHA[0-9]+|-BETA[0-9]+))i';
 
     protected $version;
 

@@ -96,10 +96,9 @@ class YamlDriver extends AbstractFileDriver
                 if (isset($element['discriminatorColumn'])) {
                     $discrColumn = $element['discriminatorColumn'];
                     $metadata->setDiscriminatorColumn(array(
-                        'name' => isset($discrColumn['name']) ? (string)$discrColumn['name'] : null,
-                        'type' => isset($discrColumn['type']) ? (string)$discrColumn['type'] : null,
-                        'length' => isset($discrColumn['length']) ? (string)$discrColumn['length'] : null,
-                        'columnDefinition' => isset($discrColumn['columnDefinition']) ? (string)$discrColumn['columnDefinition'] : null
+                        'name' => $discrColumn['name'],
+                        'type' => $discrColumn['type'],
+                        'length' => $discrColumn['length']
                     ));
                 } else {
                     $metadata->setDiscriminatorColumn(array('name' => 'dtype', 'type' => 'string', 'length' => 255));
@@ -155,10 +154,6 @@ class YamlDriver extends AbstractFileDriver
                     'columns' => $columns
                 );
             }
-        }
-
-        if (isset($element['options'])) {
-            $metadata->table['options'] = $element['options'];
         }
 
         $associationIds = array();
@@ -407,9 +402,6 @@ class YamlDriver extends AbstractFileDriver
                 if (isset($manyToManyElement['mappedBy'])) {
                     $mapping['mappedBy'] = $manyToManyElement['mappedBy'];
                 } else if (isset($manyToManyElement['joinTable'])) {
-                    if (isset($manyToManyElement['inversedBy'])) {
-                        $mapping['inversedBy'] = $manyToManyElement['inversedBy'];
-                    }
 
                     $joinTableElement = $manyToManyElement['joinTable'];
                     $joinTable = array(
@@ -437,6 +429,10 @@ class YamlDriver extends AbstractFileDriver
                     }
 
                     $mapping['joinTable'] = $joinTable;
+                }
+
+                if (isset($manyToManyElement['inversedBy'])) {
+                    $mapping['inversedBy'] = $manyToManyElement['inversedBy'];
                 }
 
                 if (isset($manyToManyElement['cascade'])) {

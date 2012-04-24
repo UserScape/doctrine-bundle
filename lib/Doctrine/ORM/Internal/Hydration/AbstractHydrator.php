@@ -36,22 +36,22 @@ use PDO,
  */
 abstract class AbstractHydrator
 {
-    /** @var \Doctrine\ORM\Query\ResultSetMapping The ResultSetMapping. */
+    /** @var ResultSetMapping The ResultSetMapping. */
     protected $_rsm;
 
     /** @var EntityManager The EntityManager instance. */
     protected $_em;
 
-    /** @var \Doctrine\DBAL\Platforms\AbstractPlatform The dbms Platform instance */
+    /** @var AbstractPlatform The dbms Platform instance */
     protected $_platform;
 
-    /** @var \Doctrine\ORM\UnitOfWork The UnitOfWork of the associated EntityManager. */
+    /** @var UnitOfWork The UnitOfWork of the associated EntityManager. */
     protected $_uow;
 
     /** @var array The cache used during row-by-row hydration. */
     protected $_cache = array();
 
-    /** @var \Doctrine\DBAL\Driver\Statement The statement that provides the data to hydrate. */
+    /** @var Statement The statement that provides the data to hydrate. */
     protected $_stmt;
 
     /** @var array The query hints. */
@@ -93,7 +93,6 @@ abstract class AbstractHydrator
      *
      * @param object $stmt
      * @param object $resultSetMapping
-     * @param array $hints
      * @return mixed
      */
     public function hydrateAll($stmt, $resultSetMapping, array $hints = array())

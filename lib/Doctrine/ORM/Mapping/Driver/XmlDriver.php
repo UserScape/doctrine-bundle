@@ -99,10 +99,9 @@ class XmlDriver extends AbstractFileDriver
                 if (isset($xmlRoot->{'discriminator-column'})) {
                     $discrColumn = $xmlRoot->{'discriminator-column'};
                     $metadata->setDiscriminatorColumn(array(
-                        'name' => isset($discrColumn['name']) ? (string)$discrColumn['name'] : null,
-                        'type' => isset($discrColumn['type']) ? (string)$discrColumn['type'] : null,
-                        'length' => isset($discrColumn['length']) ? (string)$discrColumn['length'] : null,
-                        'columnDefinition' => isset($discrColumn['column-definition']) ? (string)$discrColumn['column-definition'] : null
+                        'name' => (string)$discrColumn['name'],
+                        'type' => (string)$discrColumn['type'],
+                        'length' => (string)$discrColumn['length']
                     ));
                 } else {
                     $metadata->setDiscriminatorColumn(array('name' => 'dtype', 'type' => 'string', 'length' => 255));
@@ -162,10 +161,6 @@ class XmlDriver extends AbstractFileDriver
             }
         }
 
-        if (isset($xmlRoot->options)) {
-            $metadata->table['options'] = $this->_parseOptions($xmlRoot->options->children());
-        }
-
         // Evaluate <field ...> mappings
         if (isset($xmlRoot->field)) {
             foreach ($xmlRoot->field as $fieldMapping) {
@@ -197,6 +192,10 @@ class XmlDriver extends AbstractFileDriver
                     $mapping['unique'] = ((string)$fieldMapping['unique'] == "false") ? false : true;
                 }
 
+                if (isset($fieldMapping['options'])) {
+                    $mapping['options'] = (array)$fieldMapping['options'];
+                }
+
                 if (isset($fieldMapping['nullable'])) {
                     $mapping['nullable'] = ((string)$fieldMapping['nullable'] == "false") ? false : true;
                 }
@@ -207,10 +206,6 @@ class XmlDriver extends AbstractFileDriver
 
                 if (isset($fieldMapping['column-definition'])) {
                     $mapping['columnDefinition'] = (string)$fieldMapping['column-definition'];
-                }
-
-                if (isset($fieldMapping->options)) {
-                    $mapping['options'] = $this->_parseOptions($fieldMapping->options->children());
                 }
 
                 $metadata->mapField($mapping);
@@ -461,35 +456,6 @@ class XmlDriver extends AbstractFileDriver
                 $metadata->addLifecycleCallback((string)$lifecycleCallback['method'], constant('Doctrine\ORM\Events::' . (string)$lifecycleCallback['type']));
             }
         }
-    }
-
-    /**
-     * Parses (nested) option elements.
-     *
-     * @param $options The XML element.
-     * @return array The options array.
-     */
-    private function _parseOptions(SimpleXMLElement $options)
-    {
-        $array = array();
-
-        foreach ($options as $option) {
-            if ($option->count()) {
-                $value = $this->_parseOptions($option->children());
-            } else {
-                $value = (string) $option;
-            }
-
-            $attr = $option->attributes();
-
-            if (isset($attr->name)) {
-                $array[(string) $attr->name] = $value;
-            } else {
-                $array[] = $value;
-            }
-        }
-
-        return $array;
     }
 
     /**

@@ -1142,10 +1142,10 @@ class BasicEntityPersister
                 foreach ($columns AS $column) {
                     $placeholder = '?';
 
-                    if (isset($this->_class->fieldNames[$column]) &&
-                        isset($this->_columnTypes[$this->_class->fieldNames[$column]]) &&
+                    if (isset($this->_columnTypes[$column]) &&
+                        isset($this->_class->fieldNames[$column]) &&
                         isset($this->_class->fieldMappings[$this->_class->fieldNames[$column]]['requireSQLConversion'])) {
-                        $type = Type::getType($this->_columnTypes[$this->_class->fieldNames[$column]]);
+                        $type = Type::getType($this->_columnTypes[$column]);
                         $placeholder = $type->convertToDatabaseValueSQL('?', $this->_platform);
                     }
 

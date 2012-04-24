@@ -1981,10 +1981,9 @@ class Parser
     }
 
     /**
-     * SimpleSelectExpression ::= (
-     *      StateFieldPathExpression | IdentificationVariable | FunctionDeclaration |
-     *      AggregateExpression | "(" Subselect ")" | ScalarExpression
-     * ) [["AS"] AliasResultVariable]
+     * SimpleSelectExpression ::=
+     *      StateFieldPathExpression | IdentificationVariable |
+     *      ((AggregateExpression | "(" Subselect ")" | ScalarExpression) [["AS"] AliasResultVariable])
      *
      * @return \Doctrine\ORM\Query\AST\SimpleSelectExpression
      */
@@ -2004,18 +2003,6 @@ class Parser
                         $expression = $this->IdentificationVariable();
 
                         return new AST\SimpleSelectExpression($expression);
-
-                    case ($this->_isFunction()):
-                        // SUM(u.id) + COUNT(u.id)
-                        if ($this->_isMathOperator($this->_peekBeyondClosingParenthesis())) {
-                            return new AST\SimpleSelectExpression($this->ScalarExpression());
-                        }
-                        // COUNT(u.id)
-                        if ($this->_isAggregateFunction($this->_lexer->lookahead['type'])) {
-                            return new AST\SimpleSelectExpression($this->AggregateExpression());
-                        }
-                        // IDENTITY(u)
-                        return new AST\SimpleSelectExpression($this->FunctionDeclaration());
 
                     default:
                         // Do nothing
@@ -2826,7 +2813,7 @@ class Parser
     }
 
     /**
-     * LikeExpression ::= StringExpression ["NOT"] "LIKE" StringPrimary ["ESCAPE" char]
+     * LikeExpression ::= StringExpression ["NOT"] "LIKE" (string | input_parameter) ["ESCAPE" char]
      *
      * @return \Doctrine\ORM\Query\AST\LikeExpression
      */
@@ -2846,7 +2833,8 @@ class Parser
             $this->match(Lexer::T_INPUT_PARAMETER);
             $stringPattern = new AST\InputParameter($this->_lexer->token['value']);
         } else {
-            $stringPattern = $this->StringPrimary();
+            $this->match(Lexer::T_STRING);
+            $stringPattern = $this->_lexer->token['value'];
         }
 
         $escapeChar = null;

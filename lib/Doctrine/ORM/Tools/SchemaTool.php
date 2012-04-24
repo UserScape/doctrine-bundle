@@ -235,12 +235,6 @@ class SchemaTool
                 }
             }
 
-            if (isset($class->table['options'])) {
-                foreach ($class->table['options'] AS $key => $val) {
-                    $table->addOption($key, $val);
-                }
-            }
-
             $processedClasses[$class->name] = true;
 
             if ($class->isIdGeneratorSequence() && $class->name == $class->rootEntityName) {
@@ -288,16 +282,11 @@ class SchemaTool
             $discrColumn['length'] = 255;
         }
 
-        $options = array(
-            'length'    => isset($discrColumn['length']) ? $discrColumn['length'] : null,
-            'notnull'   => true
+        $table->addColumn(
+            $discrColumn['name'],
+            $discrColumn['type'],
+            array('length' => $discrColumn['length'], 'notnull' => true)
         );
-
-        if (isset($discrColumn['columnDefinition'])) {
-            $options['columnDefinition'] = $discrColumn['columnDefinition'];
-        }
-
-        $table->addColumn($discrColumn['name'], $discrColumn['type'], $options);
     }
 
     /**

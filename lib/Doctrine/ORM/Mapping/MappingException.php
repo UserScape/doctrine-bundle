@@ -226,11 +226,6 @@ class MappingException extends \Doctrine\ORM\ORMException
         return new self("Discriminator column type on entity class '$className' is not allowed to be '$type'. 'string' or 'integer' type variables are suggested!");
     }
 
-    public static function nameIsMandatoryForDiscriminatorColumns($className)
-    {
-        return new self("Discriminator column name on entity class '$className' is not defined.");
-    }
-
     public static function cannotVersionIdField($className, $fieldName)
     {
         return new self("Setting Id field '$fieldName' as versionale in entity class '$className' is not supported.");

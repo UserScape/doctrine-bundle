@@ -33,6 +33,4 @@ final class DiscriminatorColumn implements Annotation
     public $length;
     /** @var mixed */
     public $fieldName; // field name used in non-object hydration (array/scalar)
-    /** @var string */
-    public $columnDefinition;
 }

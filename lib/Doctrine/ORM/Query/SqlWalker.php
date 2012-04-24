@@ -440,12 +440,14 @@ class SqlWalker implements TreeWalker
                     $sql .= ' ' . $this->_platform->getWriteLockSQL();
                     break;
 
-                case LockMode::PESSIMISTIC_OPTIMISTIC:
+                case LockMode::OPTIMISTIC:
                     foreach ($this->_selectedClasses AS $selectedClass) {
-                        if ( ! $class->isVersioned) {
+                        if ( ! $selectedClass['class']->isVersioned) {
                             throw \Doctrine\ORM\OptimisticLockException::lockFailed($selectedClass['class']->name);
                         }
                     }
+                    break;
+                case LockMode::NONE:
                     break;
 
                 default:
@@ -1101,7 +1103,7 @@ class SqlWalker implements TreeWalker
 
                 $sqlTableAlias = $this->getSQLTableAlias($tableName, $dqlAlias);
                 $columnName    = $class->getQuotedColumnName($fieldName, $this->_platform);
-                $columnAlias   = $this->getSQLColumnAlias($columnName);
+                $columnAlias   = $this->getSQLColumnAlias($class->fieldMappings[$fieldName]['columnName']);
 
                 $col = $sqlTableAlias . '.' . $columnName;
 
@@ -1972,10 +1974,6 @@ class SqlWalker implements TreeWalker
             $dqlParamKey = $inputParam->name;
             $this->_parserResult->addParameterMapping($dqlParamKey, $this->_sqlParamIndex++);
             $sql .= '?';
-        } elseif ($likeExpr->stringPattern instanceof AST\Functions\FunctionNode ) {
-            $sql .= $this->walkFunction($likeExpr->stringPattern);
-        } elseif ($likeExpr->stringPattern instanceof AST\PathExpression) {
-            $sql .= $this->walkPathExpression($likeExpr->stringPattern);
         } else {
             $sql .= $this->_conn->quote($likeExpr->stringPattern);
         }
