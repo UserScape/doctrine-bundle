@@ -10,11 +10,21 @@ require __DIR__.'/lib/Doctrine/ORM/Tools/Setup.php';
 Doctrine\ORM\Tools\Setup::registerAutoloadGit(__DIR__);
 
 /**
+ * Laravel Configuration Loader
+ *
+ * This is required when using the CLI.
+ */
+Laravel\Event::listen(Laravel\Config::loader, function($bundle, $file)
+{
+	return Laravel\Config::file($bundle, $file);
+});
+
+/**
  * Delegate the starting to an event so we can start *after* the application bundle.
  *
  * This gives the application time to override configs before we boot Doctrine.
  */
-Event::listen('laravel.started: doctrine', function()
+Laravel\Event::listen('laravel.started: doctrine', function()
 {
 
 	/**
