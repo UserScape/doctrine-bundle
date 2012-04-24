@@ -59,7 +59,7 @@ Laravel\Event::listen('laravel.started: doctrine', function()
 	}
 	else
 	{
-		$driverImpl = $config->newDefaultAnnotationDriver(Config::get('doctrine::config.models'));
+		$driverImpl = $config->newDefaultAnnotationDriver(Config::get('doctrine::config.models.directory'));
 	}
 
 	$config->setMetadataDriverImpl($driverImpl);
