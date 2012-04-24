@@ -12,7 +12,7 @@ return array(
 	'proxy' => array(
 		'auto_generate' => true,
 		'namespace'     => 'Entity\\Proxy',
-		'directory'     => path('app').'models'.DS.'proxies',
+		'directory'     => path('app').'models'.DS.'Proxies',
 	),
 
 );
