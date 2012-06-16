@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -30,7 +30,7 @@ use Doctrine\Common\Cache\ArrayCache,
 /**
  * The DatabaseDriver reverse engineers the mapping metadata from a database.
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * 
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -94,12 +94,12 @@ class DatabaseDriver implements Driver
     public function setTables($entityTables, $manyToManyTables)
     {
         $this->tables = $this->manyToManyTables = $this->classToTableNames = array();
-        foreach ($entityTables AS $table) {
+        foreach ($entityTables as $table) {
             $className = $this->getClassNameForTable($table->getName());
             $this->classToTableNames[$className] = $table->getName();
             $this->tables[$table->getName()] = $table;
         }
-        foreach ($manyToManyTables AS $table) {
+        foreach ($manyToManyTables as $table) {
             $this->manyToManyTables[$table->getName()] = $table;
         }
     }
@@ -117,7 +117,7 @@ class DatabaseDriver implements Driver
         }
 
         $this->tables = $this->manyToManyTables = $this->classToTableNames = array();
-        foreach ($tables AS $tableName => $table) {
+        foreach ($tables as $tableName => $table) {
             /* @var $table Table */
             if ($this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
                 $foreignKeys = $table->getForeignKeys();
@@ -126,7 +126,7 @@ class DatabaseDriver implements Driver
             }
 
             $allForeignKeyColumns = array();
-            foreach ($foreignKeys AS $foreignKey) {
+            foreach ($foreignKeys as $foreignKey) {
                 $allForeignKeyColumns = array_merge($allForeignKeyColumns, $foreignKey->getLocalColumns());
             }
 
@@ -184,7 +184,7 @@ class DatabaseDriver implements Driver
         }
 
         $allForeignKeyColumns = array();
-        foreach ($foreignKeys AS $foreignKey) {
+        foreach ($foreignKeys as $foreignKey) {
             $allForeignKeyColumns = array_merge($allForeignKeyColumns, $foreignKey->getLocalColumns());
         }
 
@@ -232,13 +232,13 @@ class DatabaseDriver implements Driver
             $metadata->mapField($fieldMapping);
         }
 
-        foreach ($this->manyToManyTables AS $manyTable) {
-            foreach ($manyTable->getForeignKeys() AS $foreignKey) {
+        foreach ($this->manyToManyTables as $manyTable) {
+            foreach ($manyTable->getForeignKeys() as $foreignKey) {
                 // foreign  key maps to the table of the current entity, many to many association probably exists
                 if (strtolower($tableName) == strtolower($foreignKey->getForeignTableName())) {
                     $myFk = $foreignKey;
                     $otherFk = null;
-                    foreach ($manyTable->getForeignKeys() AS $foreignKey) {
+                    foreach ($manyTable->getForeignKeys() as $foreignKey) {
                         if ($foreignKey != $myFk) {
                             $otherFk = $foreignKey;
                             break;

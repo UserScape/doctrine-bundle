@@ -53,17 +53,12 @@ class Driver implements \Doctrine\DBAL\Driver
             $dsn .= ',' . $params['port'];
         }
 
-        if (isset($params['dbname'])) {;
-            $dsn .= ';Database=' .  $params['dbname'];
-        }
-
-        if (isset($params['MultipleActiveResultSets'])) {
-            $dsn .= '; MultipleActiveResultSets=' . ($params['MultipleActiveResultSets'] ? 'true' : 'false');
-        }
+		if (isset($params['dbname'])) {
+			$dsn .= ';Database=' .  $params['dbname'];
+		}
 
         return $dsn;
     }
-
 
     public function getDatabasePlatform()
     {

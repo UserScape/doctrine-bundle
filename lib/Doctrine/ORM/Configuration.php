@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -24,7 +24,9 @@ use Doctrine\Common\Cache\Cache,
     Doctrine\Common\Annotations\AnnotationRegistry,
     Doctrine\Common\Annotations\AnnotationReader,
     Doctrine\ORM\Mapping\Driver\Driver,
-    Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+    Doctrine\ORM\Mapping\Driver\AnnotationDriver,
+    Doctrine\ORM\Mapping\NamingStrategy,
+    Doctrine\ORM\Mapping\DefaultNamingStrategy;
 
 /**
  * Configuration container for all configuration options of Doctrine.
@@ -56,8 +58,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getProxyDir()
     {
-        return isset($this->_attributes['proxyDir']) ?
-                $this->_attributes['proxyDir'] : null;
+        return isset($this->_attributes['proxyDir'])
+            ? $this->_attributes['proxyDir']
+            : null;
     }
 
     /**
@@ -68,8 +71,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getAutoGenerateProxyClasses()
     {
-        return isset($this->_attributes['autoGenerateProxyClasses']) ?
-                $this->_attributes['autoGenerateProxyClasses'] : true;
+        return isset($this->_attributes['autoGenerateProxyClasses'])
+            ? $this->_attributes['autoGenerateProxyClasses']
+            : true;
     }
 
     /**
@@ -90,8 +94,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getProxyNamespace()
     {
-        return isset($this->_attributes['proxyNamespace']) ?
-                $this->_attributes['proxyNamespace'] : null;
+        return isset($this->_attributes['proxyNamespace'])
+            ? $this->_attributes['proxyNamespace']
+            : null;
     }
 
     /**
@@ -124,29 +129,38 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function newDefaultAnnotationDriver($paths = array())
     {
-        if (version_compare(\Doctrine\Common\Version::VERSION, '2.2.0-DEV', '>=')) {
-            // Register the ORM Annotations in the AnnotationRegistry
-            AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DoctrineAnnotations.php');
+        switch (true) {
+            case (version_compare(\Doctrine\Common\Version::VERSION, '2.2.0-DEV', '>=')):
+                // Register the ORM Annotations in the AnnotationRegistry
+                AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DoctrineAnnotations.php');
 
-            $reader = new \Doctrine\Common\Annotations\SimpleAnnotationReader();
-            $reader->addNamespace('Doctrine\ORM\Mapping');
-            $reader = new \Doctrine\Common\Annotations\CachedReader($reader, new ArrayCache());
-        } else if (version_compare(\Doctrine\Common\Version::VERSION, '2.1.0-DEV', '>=')) {
-            // Register the ORM Annotations in the AnnotationRegistry
-            AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DoctrineAnnotations.php');
+                $reader = new \Doctrine\Common\Annotations\SimpleAnnotationReader();
+                $reader->addNamespace('Doctrine\ORM\Mapping');
 
-            $reader = new AnnotationReader();
-            $reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
-            $reader->setIgnoreNotImportedAnnotations(true);
-            $reader->setEnableParsePhpImports(false);
-            $reader = new \Doctrine\Common\Annotations\CachedReader(
-                new \Doctrine\Common\Annotations\IndexedReader($reader), new ArrayCache()
-            );
-        } else {
-            $reader = new AnnotationReader();
-            $reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
+                $reader = new \Doctrine\Common\Annotations\CachedReader($reader, new ArrayCache());
+                break;
+
+            case (version_compare(\Doctrine\Common\Version::VERSION, '2.1.0-DEV', '>=')):
+                // Register the ORM Annotations in the AnnotationRegistry
+                AnnotationRegistry::registerFile(__DIR__ . '/Mapping/Driver/DoctrineAnnotations.php');
+
+                $reader = new AnnotationReader();
+                $reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
+                $reader->setIgnoreNotImportedAnnotations(true);
+                $reader->setEnableParsePhpImports(false);
+
+                $reader = new \Doctrine\Common\Annotations\CachedReader(
+                    new \Doctrine\Common\Annotations\IndexedReader($reader), new ArrayCache()
+                );
+                break;
+
+            default:
+                $reader = new AnnotationReader();
+                $reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
+                break;
         }
-        return new AnnotationDriver($reader, (array)$paths);
+
+        return new AnnotationDriver($reader, (array) $paths);
     }
 
     /**
@@ -205,8 +219,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getMetadataDriverImpl()
     {
-        return isset($this->_attributes['metadataDriverImpl']) ?
-                $this->_attributes['metadataDriverImpl'] : null;
+        return isset($this->_attributes['metadataDriverImpl'])
+            ? $this->_attributes['metadataDriverImpl']
+            : null;
     }
 
     /**
@@ -216,8 +231,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getQueryCacheImpl()
     {
-        return isset($this->_attributes['queryCacheImpl']) ?
-                $this->_attributes['queryCacheImpl'] : null;
+        return isset($this->_attributes['queryCacheImpl'])
+            ? $this->_attributes['queryCacheImpl']
+            : null;
     }
 
     /**
@@ -259,8 +275,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getMetadataCacheImpl()
     {
-        return isset($this->_attributes['metadataCacheImpl']) ?
-                $this->_attributes['metadataCacheImpl'] : null;
+        return isset($this->_attributes['metadataCacheImpl'])
+            ? $this->_attributes['metadataCacheImpl']
+            : null;
     }
 
     /**
@@ -295,6 +312,7 @@ class Configuration extends \Doctrine\DBAL\Configuration
         if ( ! isset($this->_attributes['namedQueries'][$name])) {
             throw ORMException::namedQueryNotFound($name);
         }
+
         return $this->_attributes['namedQueries'][$name];
     }
 
@@ -322,6 +340,7 @@ class Configuration extends \Doctrine\DBAL\Configuration
         if ( ! isset($this->_attributes['namedNativeQueries'][$name])) {
             throw ORMException::namedNativeQueryNotFound($name);
         }
+
         return $this->_attributes['namedNativeQueries'][$name];
     }
 
@@ -334,12 +353,14 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function ensureProductionSettings()
     {
-        if ( !$this->getQueryCacheImpl()) {
+        if ( ! $this->getQueryCacheImpl()) {
             throw ORMException::queryCacheNotConfigured();
         }
-        if ( !$this->getMetadataCacheImpl()) {
+
+        if ( ! $this->getMetadataCacheImpl()) {
             throw ORMException::metadataCacheNotConfigured();
         }
+
         if ($this->getAutoGenerateProxyClasses()) {
             throw ORMException::proxyClassesAlwaysRegenerating();
         }
@@ -369,8 +390,10 @@ class Configuration extends \Doctrine\DBAL\Configuration
     public function getCustomStringFunction($name)
     {
         $name = strtolower($name);
-        return isset($this->_attributes['customStringFunctions'][$name]) ?
-                $this->_attributes['customStringFunctions'][$name] : null;
+
+        return isset($this->_attributes['customStringFunctions'][$name])
+            ? $this->_attributes['customStringFunctions'][$name]
+            : null;
     }
 
     /**
@@ -412,8 +435,10 @@ class Configuration extends \Doctrine\DBAL\Configuration
     public function getCustomNumericFunction($name)
     {
         $name = strtolower($name);
-        return isset($this->_attributes['customNumericFunctions'][$name]) ?
-                $this->_attributes['customNumericFunctions'][$name] : null;
+
+        return isset($this->_attributes['customNumericFunctions'][$name])
+            ? $this->_attributes['customNumericFunctions'][$name]
+            : null;
     }
 
     /**
@@ -455,8 +480,10 @@ class Configuration extends \Doctrine\DBAL\Configuration
     public function getCustomDatetimeFunction($name)
     {
         $name = strtolower($name);
-        return isset($this->_attributes['customDatetimeFunctions'][$name]) ?
-                $this->_attributes['customDatetimeFunctions'][$name] : null;
+
+        return isset($this->_attributes['customDatetimeFunctions'][$name])
+            ? $this->_attributes['customDatetimeFunctions'][$name]
+            : null;
     }
 
     /**
@@ -482,8 +509,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getCustomHydrationMode($modeName)
     {
-        return isset($this->_attributes['customHydrationModes'][$modeName]) ?
-            $this->_attributes['customHydrationModes'][$modeName] : null;
+        return isset($this->_attributes['customHydrationModes'][$modeName])
+            ? $this->_attributes['customHydrationModes'][$modeName]
+            : null;
     }
 
     /**
@@ -512,9 +540,10 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getClassMetadataFactoryName()
     {
-        if (!isset($this->_attributes['classMetadataFactoryName'])) {
+        if ( ! isset($this->_attributes['classMetadataFactoryName'])) {
             $this->_attributes['classMetadataFactoryName'] = 'Doctrine\ORM\Mapping\ClassMetadataFactory';
         }
+
         return $this->_attributes['classMetadataFactoryName'];
     }
 
@@ -539,8 +568,9 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getFilterClassName($name)
     {
-        return isset($this->_attributes['filters'][$name]) ?
-                $this->_attributes['filters'][$name] : null;
+        return isset($this->_attributes['filters'][$name])
+            ? $this->_attributes['filters'][$name]
+            : null;
     }
 
     /**
@@ -552,10 +582,12 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function setDefaultRepositoryClassName($className)
     {
-        if ($className != "Doctrine\ORM\EntityRepository" &&
-           !is_subclass_of($className, 'Doctrine\ORM\EntityRepository')){
+        $entityRepositoryClassName = 'Doctrine\ORM\EntityRepository';
+
+        if ($className !== $entityRepositoryClassName && ! is_subclass_of($className, $entityRepositoryClassName)) {
             throw ORMException::invalidEntityRepository($className);
         }
+
         $this->_attributes['defaultRepositoryClassName'] = $className;
     }
 
@@ -567,7 +599,34 @@ class Configuration extends \Doctrine\DBAL\Configuration
      */
     public function getDefaultRepositoryClassName()
     {
-        return isset($this->_attributes['defaultRepositoryClassName']) ?
-                $this->_attributes['defaultRepositoryClassName'] : 'Doctrine\ORM\EntityRepository';
+        return isset($this->_attributes['defaultRepositoryClassName'])
+            ? $this->_attributes['defaultRepositoryClassName']
+            : 'Doctrine\ORM\EntityRepository';
+    }
+
+    /**
+     * Set naming strategy.
+     *
+     * @since 2.3
+     * @param NamingStrategy $namingStrategy
+     */
+    public function setNamingStrategy(NamingStrategy $namingStrategy)
+    {
+        $this->_attributes['namingStrategy'] = $namingStrategy;
+    }
+
+    /**
+     * Get naming strategy..
+     *
+     * @since 2.3
+     * @return NamingStrategy
+     */
+    public function getNamingStrategy()
+    {
+        if ( ! isset($this->_attributes['namingStrategy'])) {
+            $this->_attributes['namingStrategy'] = new DefaultNamingStrategy();
+        }
+        
+        return $this->_attributes['namingStrategy'];
     }
 }

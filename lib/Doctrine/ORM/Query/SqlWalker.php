@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -43,7 +43,7 @@ class SqlWalker implements TreeWalker
      * @var string
      */
     const HINT_DISTINCT = 'doctrine.distinct';
-  
+
     /**
      * @var ResultSetMapping
      */
@@ -309,13 +309,13 @@ class SqlWalker implements TreeWalker
     {
         $sqlParts = array();
 
-        foreach ($this->_selectedClasses AS $selectedClass) {
+        foreach ($this->_selectedClasses as $selectedClass) {
             $dqlAlias = $selectedClass['dqlAlias'];
             $qComp    = $this->_queryComponents[$dqlAlias];
 
             if ( ! isset($qComp['relation']['orderBy'])) continue;
 
-            foreach ($qComp['relation']['orderBy'] AS $fieldName => $orientation) {
+            foreach ($qComp['relation']['orderBy'] as $fieldName => $orientation) {
                 $columnName = $qComp['metadata']->getQuotedColumnName($fieldName, $this->_platform);
                 $tableName  = ($qComp['metadata']->isInheritanceTypeJoined())
                     ? $this->_em->getUnitOfWork()->getEntityPersister($qComp['metadata']->name)->getOwningTable($fieldName)
@@ -441,7 +441,7 @@ class SqlWalker implements TreeWalker
                     break;
 
                 case LockMode::OPTIMISTIC:
-                    foreach ($this->_selectedClasses AS $selectedClass) {
+                    foreach ($this->_selectedClasses as $selectedClass) {
                         if ( ! $selectedClass['class']->isVersioned) {
                             throw \Doctrine\ORM\OptimisticLockException::lockFailed($selectedClass['class']->name);
                         }
@@ -780,8 +780,8 @@ class SqlWalker implements TreeWalker
     public function walkOrderByItem($orderByItem)
     {
         $expr = $orderByItem->expression;
-        $sql  = ($expr instanceof AST\PathExpression)
-            ? $this->walkPathExpression($expr)
+        $sql  = ($expr instanceof AST\Node)
+            ? $expr->dispatch($this)
             : $this->walkResultVariable($this->_queryComponents[$expr]['token']['value']);
 
         return $sql . ' ' . strtoupper($orderByItem->type);
@@ -1420,7 +1420,7 @@ class SqlWalker implements TreeWalker
     {
         $sqlParts = array();
 
-        foreach ($groupByClause->groupByItems AS $groupByItem) {
+        foreach ($groupByClause->groupByItems as $groupByItem) {
             $sqlParts[] = $this->walkGroupByItem($groupByItem);
         }
 
@@ -1448,14 +1448,14 @@ class SqlWalker implements TreeWalker
         // IdentificationVariable
         $sqlParts = array();
 
-        foreach ($this->_queryComponents[$groupByItem]['metadata']->fieldNames AS $field) {
+        foreach ($this->_queryComponents[$groupByItem]['metadata']->fieldNames as $field) {
             $item       = new AST\PathExpression(AST\PathExpression::TYPE_STATE_FIELD, $groupByItem, $field);
             $item->type = AST\PathExpression::TYPE_STATE_FIELD;
 
             $sqlParts[] = $this->walkPathExpression($item);
         }
 
-        foreach ($this->_queryComponents[$groupByItem]['metadata']->associationMappings AS $mapping) {
+        foreach ($this->_queryComponents[$groupByItem]['metadata']->associationMappings as $mapping) {
             if ($mapping['isOwningSide'] && $mapping['type'] & ClassMetadataInfo::TO_ONE) {
                 $item       = new AST\PathExpression(AST\PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $groupByItem, $mapping['fieldName']);
                 $item->type = AST\PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION;
@@ -1687,7 +1687,6 @@ class SqlWalker implements TreeWalker
             // InputParameter
             case ($entityExpr instanceof AST\InputParameter):
                 $dqlParamKey = $entityExpr->name;
-                $entity      = $this->_query->getParameter($dqlParamKey);
                 $entitySql   = '?';
                 break;
 
@@ -1853,7 +1852,6 @@ class SqlWalker implements TreeWalker
 
         $dqlAlias = $instanceOfExpr->identificationVariable;
         $discrClass = $class = $this->_queryComponents[$dqlAlias]['metadata'];
-        $fieldName = null;
 
         if ($class->discriminatorColumn) {
             $discrClass = $this->_em->getClassMetadata($class->rootEntityName);
@@ -1871,7 +1869,8 @@ class SqlWalker implements TreeWalker
             if ($parameter instanceof AST\InputParameter) {
                 // We need to modify the parameter value to be its correspondent mapped value
                 $dqlParamKey = $parameter->name;
-                $paramValue  = $this->_query->getParameter($dqlParamKey);
+                $dqlParam    = $this->_query->getParameter($dqlParamKey);
+                $paramValue  = $this->_query->processParameterValue($dqlParam->getValue());
 
                 if ( ! ($paramValue instanceof \Doctrine\ORM\Mapping\ClassMetadata)) {
                     throw QueryException::invalidParameterType('ClassMetadata', get_class($paramValue));
@@ -1974,12 +1973,16 @@ class SqlWalker implements TreeWalker
             $dqlParamKey = $inputParam->name;
             $this->_parserResult->addParameterMapping($dqlParamKey, $this->_sqlParamIndex++);
             $sql .= '?';
+        } elseif ($likeExpr->stringPattern instanceof AST\Functions\FunctionNode ) {
+            $sql .= $this->walkFunction($likeExpr->stringPattern);
+        } elseif ($likeExpr->stringPattern instanceof AST\PathExpression) {
+            $sql .= $this->walkPathExpression($likeExpr->stringPattern);
         } else {
-            $sql .= $this->_conn->quote($likeExpr->stringPattern);
+            $sql .= $this->walkLiteral($likeExpr->stringPattern);
         }
 
         if ($likeExpr->escapeChar) {
-            $sql .= ' ESCAPE ' . $this->_conn->quote($likeExpr->escapeChar);
+            $sql .= ' ESCAPE ' . $this->walkLiteral($likeExpr->escapeChar);
         }
 
         return $sql;
@@ -2043,8 +2046,8 @@ class SqlWalker implements TreeWalker
     public function walkArithmeticExpression($arithmeticExpr)
     {
         return ($arithmeticExpr->isSimpleArithmeticExpression())
-        	? $this->walkSimpleArithmeticExpression($arithmeticExpr->simpleArithmeticExpression)
-        	: '(' . $this->walkSubselect($arithmeticExpr->subselect) . ')';
+            ? $this->walkSimpleArithmeticExpression($arithmeticExpr->simpleArithmeticExpression)
+            : '(' . $this->walkSubselect($arithmeticExpr->subselect) . ')';
     }
 
     /**
