@@ -53,8 +53,10 @@ abstract class OrmTestCase extends DatabaseTestCase
     {
         if ($this->_em == null) {
             $this->_em = $this->createEntityManager();
-            $this->assertInstanceOf('Doctrine\ORM\EntityManager', $this->_em,
-                "Not a valid Doctrine\ORM\EntityManager returned from createEntityManager() method.");
+
+            if ( ! $this->_em instanceof \Doctrine\ORM\EntityManager) {
+                throw new \Exception('Not a valid Doctrine\ORM\EntityManager returned from createEntityManager() method.');
+            }
         }
         return $this->_em;
     }
