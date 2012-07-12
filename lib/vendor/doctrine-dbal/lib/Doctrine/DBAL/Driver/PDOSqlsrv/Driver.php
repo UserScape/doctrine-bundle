@@ -60,7 +60,6 @@ class Driver implements \Doctrine\DBAL\Driver
         return $dsn;
     }
 
-
     public function getDatabasePlatform()
     {
         return new \Doctrine\DBAL\Platforms\SQLServer2008Platform();

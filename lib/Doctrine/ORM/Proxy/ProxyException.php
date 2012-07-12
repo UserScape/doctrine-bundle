@@ -15,7 +15,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
 */
 
@@ -42,6 +42,14 @@ class ProxyException extends \Doctrine\ORM\ORMException {
 
     public static function proxyNamespaceRequired() {
         return new self("You must configure a proxy namespace. See docs for details");
+    }
+
+    public static function notProxyClass($className, $proxyNamespace)
+    {
+        return new self(sprintf(
+            "The class %s is not part of the proxy namespace %s",
+            $className, $proxyNamespace
+        ));
     }
 
 }

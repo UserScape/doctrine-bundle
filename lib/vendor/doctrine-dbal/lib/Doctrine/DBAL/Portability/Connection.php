@@ -37,6 +37,8 @@ class Connection extends \Doctrine\DBAL\Connection
     const PORTABILITY_POSTGRESQL        = 13;
     const PORTABILITY_SQLITE            = 13;
     const PORTABILITY_OTHERVENDORS      = 12;
+    const PORTABILITY_DRIZZLE           = 13;
+    const PORTABILITY_SQLSRV            = 13;
 
     /**
      * @var int
@@ -60,6 +62,10 @@ class Connection extends \Doctrine\DBAL\Connection
                     $params['portability'] = $params['portability'] & self::PORTABILITY_POSTGRESQL;
                 } else if ($this->_platform->getName() === "sqlite") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLITE;
+                } else if ($this->_platform->getName() === "drizzle") {
+                    $params['portability'] = self::PORTABILITY_DRIZZLE;
+                } else if ($this->_platform->getName() === 'sqlsrv') {
+                    $params['portability'] = $params['portabililty'] & self::PORTABILITY_SQLSRV;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;
                 }
@@ -96,7 +102,7 @@ class Connection extends \Doctrine\DBAL\Connection
      * Prepares an SQL statement.
      *
      * @param string $statement The SQL statement to prepare.
-     * @return Doctrine\DBAL\Driver\Statement The prepared statement.
+     * @return \Doctrine\DBAL\Driver\Statement The prepared statement.
      */
     public function prepare($statement)
     {

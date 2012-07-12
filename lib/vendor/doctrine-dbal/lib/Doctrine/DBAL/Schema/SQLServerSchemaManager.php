@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 
 /**
@@ -103,6 +104,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
+        // TODO: Remove code duplication with AbstractSchemaManager;
         $result = array();
         foreach ($tableIndexRows AS $tableIndex) {
             $indexName = $keyName = $tableIndex['index_name'];
@@ -111,11 +113,19 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             }
             $keyName = strtolower($keyName);
 
+            $flags = array();
+            if (strpos($tableIndex['index_description'], 'clustered') !== false) {
+                $flags[] = 'clustered';
+            } else if (strpos($tableIndex['index_description'], 'nonclustered') !== false) {
+                $flags[] = 'nonclustered';
+            }
+
             $result[$keyName] = array(
                 'name' => $indexName,
                 'columns' => explode(', ', $tableIndex['index_keys']),
                 'unique' => strpos($tableIndex['index_description'], 'unique') !== false,
                 'primary' => strpos($tableIndex['index_description'], 'primary key') !== false,
+                'flags' => $flags,
             );
         }
 
