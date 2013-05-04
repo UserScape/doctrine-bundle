@@ -3,11 +3,17 @@
 use Doctrine\ORM\EntityManager,
 	Laravel\Autoloader,
 	Laravel\Config,
+	Laravel\Event,
 	Laravel\IoC;
 
 require __DIR__.'/lib/Doctrine/ORM/Tools/Setup.php';
 
 Doctrine\ORM\Tools\Setup::registerAutoloadGit(__DIR__);
+
+Laravel\Event::listen(Laravel\Config::loader, function($bundle, $file)
+{
+	return Laravel\Config::file($bundle, $file);
+});
 
 /**
  * Delegate the starting to an event so we can start *after* the application bundle.
